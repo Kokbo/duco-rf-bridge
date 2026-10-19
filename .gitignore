@@ -1,0 +1,17 @@
+# build output
+.pio/
+build/
+
+# your secrets and network: copy config.example.h to config.h
+firmware/src/bridge/config.h
+
+# serial logs (they contain your network ID; sanitize before sharing)
+logs/
+*.log
+
+# editors
+.vscode/
+.idea/
+
+# python
+__pycache__/

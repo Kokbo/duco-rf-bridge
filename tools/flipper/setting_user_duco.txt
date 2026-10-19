@@ -1,0 +1,27 @@
+Filetype: Flipper SubGhz Setting File
+Version: 1
+
+# Duco RF (CC1101, 868.294 MHz, GFSK, 38.4 kbps) - RAW capture preset.
+#
+# Merge these lines into /ext/subghz/assets/setting_user on the Flipper SD card
+# (create the file if it does not exist), then reboot the Flipper.
+# Afterwards: Sub-GHz > Read RAW > Config > Modulation = Duco_GFSK_38k4,
+# Frequency = 868.29 (or the one listed below).
+#
+# Derived from the register table in arnemauer/Duco-RF-protocol, with changes
+# for Flipper's asynchronous RAW mode (it timestamps the demodulated bit stream
+# on GDO0 instead of using the CC1101 packet engine):
+#   IOCFG0   0x07 -> 0x0D  (serial data out on GDO0)
+#   PKTCTRL0 0x05 -> 0x32  (asynchronous serial mode, no CRC/length handling)
+#   MDMCFG2  0x13 -> 0x10  (GFSK, no sync-word detection in async mode)
+#   MCSM0    0x08 -> 0x18  (auto-calibrate on idle->RX, needed by Flipper)
+#   MCSM1    0x27 -> 0x30  (return to idle after RX/TX)
+# Everything else (frequency, bandwidth, deviation, AGC, FREND, FSCAL) is
+# unchanged. IOCFG2 (address 0x00) is left out because 00 marks the end of the
+# register list. PATABLE is C5 as in the Duco config.
+
+Frequency: 868294000
+
+Custom_preset_name: Duco_GFSK_38k4
+Custom_preset_module: CC1101
+Custom_preset_data: 02 0D 03 47 04 D3 05 91 06 20 07 0C 08 32 09 00 0A 00 0B 06 0C 00 0D 21 0E 65 0F 5C 10 CA 11 83 12 10 13 22 14 F8 15 35 16 07 17 30 18 18 19 16 1A 6C 1B 43 1C 40 1D 91 21 56 22 10 23 E9 24 2A 25 00 26 1F 29 59 2A 7F 2B 3F 2C 81 2D 35 2E 09 00 00 C5 00 00 00 00 00 00 00
