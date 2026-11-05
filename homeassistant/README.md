@@ -27,6 +27,7 @@ For the box itself:
 |---|---|
 | `duco/<id>` | `{"temp_c":20.5,"demand":10,"mode":"auto","co2_ppm":495,"rh_pct":58.8}` (retained) |
 | `duco/box` | `{"mode":"middle","source":"Living room (node 4)","permanent":false}` (retained) |
+| `duco/box/press` | same payload as `duco/box`, only for a real button press (not for `ha`/`boot`), **not retained**; a repeat press of the active mode is published again |
 | `duco/box/mode/set` | write `auto` / `low` / `middle` / `high` / `away` |
 | `duco/debug/event` | the latest event line (press, mode change, give-up) for debugging |
 

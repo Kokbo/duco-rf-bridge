@@ -119,6 +119,7 @@ static uint16_t n22 = 0; static uint8_t last22Node = 0; static uint32_t last22At
 
 static const char* BOX_TOPIC     = "duco/box";            // {"mode":..,"source":..}
 static const char* BOX_SET_TOPIC = "duco/box/mode/set";   // HA select writes auto/low/middle/high/away
+static const char* BOX_PRESS_TOPIC = "duco/box/press";    // same payload, real presses only, NOT retained
 static const char* EVENT_TOPIC   = "duco/debug/event";    // latest event line (0x22 / mode change), retained
 
 // The serial monitor tends to attach after boot, so keep the important events in
@@ -219,13 +220,18 @@ static void publishDiscovery() {
   Serial.println("MQTT discovery published.");
 }
 
-static void publishBox(const char* source) {
+// duco/box is the retained state (the HA select reads it). A real button press
+// also goes to duco/box/press, not retained: a subscriber that (re)connects gets
+// the current mode from duco/box but never replays an old press as a new one.
+// A repeat press of the active mode publishes again, so HA can count it.
+static void publishBox(const char* source, bool press = false) {
   if (!mqtt.connected()) return;
   JsonDocument doc;
   doc["mode"] = duco::modeLower(systemMode); doc["source"] = source;
   doc["permanent"] = systemPerm;
   char buf[128]; size_t n = serializeJson(doc, buf);
   mqtt.publish(BOX_TOPIC, (const uint8_t*)buf, n, true);
+  if (press) mqtt.publish(BOX_PRESS_TOPIC, (const uint8_t*)buf, n, false);
 }
 
 static void publishState(int idx) {
@@ -350,7 +356,7 @@ static void setSystemMode(uint8_t mode, bool perm, const char* source, uint8_t r
   for (int k = 0; k < N_NODES; k++)
     if (NODES[k].addr != requester) queueConfirm(NODES[k].addr);
   if (requester) notBefore = millis() + CONFIRM_DELAY_MS;
-  publishBox(source);
+  publishBox(source, requester != 0);
 }
 
 static void onMqtt(char* topic, uint8_t* payload, unsigned int len) {
